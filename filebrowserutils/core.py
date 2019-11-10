@@ -110,6 +110,6 @@ class FileBrowserSelector:
         sel.unselect_all()
         sel.select_iter(itr)
 
-        self.view.scroll_to_cell(path, None, True, SCROLL_ALIGN)
+        self.view.scroll_to_cell(path, None, True, self.SCROLL_ALIGN)
         self.view.grab_focus()
 
