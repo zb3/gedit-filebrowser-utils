@@ -19,12 +19,15 @@ class FileBrowserSelector:
 
     def select_current_document(self):
         doc = self.window.get_active_document()
-        if doc:
-            gfile = doc.get_location()
-            if gfile:
-                self.select_uri(gfile.get_uri())
+        if not doc:
+            return
 
-    def select_uri(self, uri):
+        gfile = doc.get_location()
+        if not gfile:
+            return
+
+        gfile_uri = gfile.get_uri()
+
         try:
             msg = self.bus.send_sync('/plugins/filebrowser', 'get_root')
         except TypeError:
@@ -33,12 +36,13 @@ class FileBrowserSelector:
         root = msg.props.location
         root_uri = root.get_uri()
 
-        if not uri.startswith(root_uri + '/'):
-            return
+        if not gfile_uri.startswith(root_uri + '/'):
+            root = gfile.get_parent()
+            msg = self.bus.send_sync('/plugins/filebrowser', 'set_root', location=root)
 
         model = self.get_model()
         if model:
-            self.select_uri_from_iter(model, model.get_iter_first(), uri)
+            self.select_uri_from_iter(model, model.get_iter_first(), gfile_uri)
 
     def select_uri_from_iter(self, model, itr, uri):
         while itr is not None:
