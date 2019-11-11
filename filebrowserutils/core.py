@@ -70,7 +70,6 @@ class FileBrowserSelector:
             else:
                 itr = model.iter_next(itr)
 
-
     def set_pending_expand(self, model, path, uri):
         self.pending_model = model
         self.pending_path = path
@@ -100,11 +99,16 @@ class FileBrowserSelector:
 
         if rows:
             row = rows[0]
+            itr = model.get_iter(row)
 
-            moved = row.up()
-            # currently we don't change the root (could use backspace)
-
-            self.select_iter(model, model.get_iter(row))
+            if row.get_depth() > 1:
+                row.up()
+                self.select_iter(model, itr)
+            else:
+                gfile = model.get_value(itr, self.COLUMN_LOCATION).get_parent()
+                target_root = gfile.get_parent()
+                self.bus.send_sync('/plugins/filebrowser', 'set_root', location=target_root)
+                self.select_uri_from_iter(model, model.get_iter_first(), gfile.get_uri())
 
     def select_iter(self, model, itr):
         path = model.get_path(itr)

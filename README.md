@@ -15,5 +15,4 @@ This plugin won't (currently):
 ### Select parent directory
 Press <kbd>Alt</kbd> + <kbd>P</kbd> to jump to parent directory of the currently selected file in the file browser panel.
 
-Currently this plugin won't change the root directory if no parent visible.
 
