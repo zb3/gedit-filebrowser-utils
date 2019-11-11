@@ -7,15 +7,23 @@ class FileBrowserSelector:
         self.view = view
         self.bus = window.get_message_bus()
 
-    def get_model(self):
+    def get_model(self, ensure_view=False):
         # we only want to return this when it's a file browser model
         # bookmarks model is not of our interest
         model = self.view.get_model()
 
-        if model.__gtype__.name == 'GeditFileBrowserStore':
-            return model
+        if model.__gtype__.name != 'GeditFileBrowserStore':
+            if not ensure_view:
+                return None
 
-        return None
+            try:
+                msg = self.bus.send_sync('/plugins/filebrowser', 'show_files')
+            except TypeError:
+                return
+
+            model = self.view.get_model()
+
+        return model
 
     def select_current_document(self):
         doc = self.window.get_active_document()
@@ -40,7 +48,7 @@ class FileBrowserSelector:
             root = gfile.get_parent()
             msg = self.bus.send_sync('/plugins/filebrowser', 'set_root', location=root)
 
-        model = self.get_model()
+        model = self.get_model(True)
         if model:
             self.select_uri_from_iter(model, model.get_iter_first(), gfile_uri)
 
