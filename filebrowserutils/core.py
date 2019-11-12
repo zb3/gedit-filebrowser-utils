@@ -107,13 +107,12 @@ class FileBrowserSelector:
 
         if rows:
             row = rows[0]
-            itr = model.get_iter(row)
 
             if row.get_depth() > 1:
                 row.up()
-                self.select_iter(model, itr)
+                self.select_iter(model, model.get_iter(row))
             else:
-                gfile = model.get_value(itr, self.COLUMN_LOCATION).get_parent()
+                gfile = model.get_value(model.get_iter(row), self.COLUMN_LOCATION).get_parent()
                 target_root = gfile.get_parent()
                 self.bus.send_sync('/plugins/filebrowser', 'set_root', location=target_root)
                 self.select_uri_from_iter(model, model.get_iter_first(), gfile.get_uri())
